@@ -24,10 +24,26 @@ fn run(filename: &str) -> Result<(), Box<dyn Error>> {
         let number = line.trim().parse::<i64>()?;
         let complement = 2020-number;
         if input_data.contains(&complement) {
-            println!("{}", number*complement)
+            println!("Part 1: {}", number*complement);
         }
         input_data.insert(number);
     }
+
+    // Now we need to find three numbers that sum to 2020.
+    // As before, but double-iterating.
+    'outer: for number_one in &input_data {
+        for number_two in &input_data {
+            let sum = number_one + number_two;
+            let complement = 2020-sum;
+            if input_data.contains(&complement) {
+                println!("Three numbers are {}, {}, and {}", number_one, number_two, complement);
+                println!("Multiplied, its {}", number_one*number_two*complement);
+                break 'outer;
+            }
+
+        }
+    }
+
 
     Ok(())
 }
