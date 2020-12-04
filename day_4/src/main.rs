@@ -39,12 +39,19 @@ fn run(filename: &str) -> Result<(), Box<dyn Error>> {
     for line in &lines {
         // iterate over these key:value pairs. If you see an empty line, clear the hashset.
         // If you see all the fields, valid passport += 1
-        let mut key = line.split(|c| c == ':').next().unwrap();
-        if key == "" {
+        let key_value: Vec<&str> = line.split(|c| c == ':').collect();
+        let key = key_value[0];
+        if key_value.len() != 2 {
+            continue;
+        }
+
+        let value = key_value[1];
+
+        if &key == &"" {
             found_fields.clear();
         }
-        else if required_fields.contains(&key) {
-            found_fields.insert(&key);
+        else if required_fields.contains(key) {
+            found_fields.insert(key);
         }
         if found_fields == required_fields {
             valid_passports += 1;
