@@ -43,25 +43,33 @@ class Instructions:
     def run(self):
         """Move along the tape, executing the instructions."""
         while True:
-            self.execute_instruction()
-
+            code = self.execute_instruction()
+            if code != 0:
+                break
     def execute_instruction(self):
         """Run the instruction at the pointer position."""
+        if self.pointer == len(self.instruction_set):
+            print(f"Terminating normally with acc {self.accumulator}")
+            return 1
         instruction = self.instruction_set[self.pointer]
         instruction.exec_count += 1
         if self.instruction_set[self.pointer].exec_count == 2:
             # Then we're in an infinite loop.
-            print(self.accumulator)
-            raise RuntimeError("Infinite loop!")
+            # print(f"Infinite loop detected: acc {self.accumulator}")
+            return 1
         if instruction.op == "acc":
             self.accumulator += instruction.arg
             self.pointer += 1
         elif instruction.op == "jmp":
             self.pointer += instruction.arg
         elif instruction.op == "nop":
+            if self.pointer + instruction.arg == len(self.instruction_set):
+                print(f"This should be a jmp. Acc {self.accumulator}.")
             self.pointer += 1
         else:
-            raise ValueError(f"Instruction op is {instruction.op}. Should be 'acc', 'jmp', or 'nop'.")
+            print(f"Instruction op is {instruction.op}. Should be 'acc', 'jmp', or 'nop'.")
+            return 1
+        return 0
 
 def _parse_input_data(input_data: List[str]) -> Instructions:
     """Parse each newline-stripped line of the input into a set of Instructions."""
@@ -76,3 +84,30 @@ if __name__ == "__main__":
 
     instructions = Instructions(path="input.txt")
     instructions.run()
+
+    # Look for a rogue jmp or nop
+    with open("input.txt") as flines:
+        input_text = [line.strip() for line in flines]
+    
+    jump_positions = []
+    for i, line in enumerate(input_text):
+        if line.startswith("jmp"):
+            jump_positions.append(i)
+
+    for jump_position in jump_positions:
+        input_text_altered = input_text.copy()
+        input_text_altered[jump_position] = input_text_altered[jump_position].replace("jmp", "nop")
+        instructions = Instructions(input_text=input_text_altered)
+        instructions.run()
+    
+    nop_positions = []
+    for i, line in enumerate(input_text):
+        if line.startswith("nop"):
+            nop_positions.append(i)
+ 
+    for nop_position in nop_positions:
+        input_text_altered = input_text.copy()
+        input_text_altered[nop_position] = input_text_altered[nop_position].replace("nop", "jmp")
+        instructions = Instructions(input_text=input_text_altered)
+        instructions.run()
+   
