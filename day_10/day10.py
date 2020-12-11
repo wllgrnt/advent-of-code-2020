@@ -1,9 +1,14 @@
 """
 Given a list of volatages (plus a 0, and one 3+ higher than the max), return a count of the 
 differences.
+
+Part 2:
+What is the total number of distinct ways you can arrange
+the adapters to connect the charging outlet to your device?
 """
 from collections import Counter
 from typing import List
+import math
 
 
 def get_diffs(adapters: List[int]) -> List[int]:
@@ -15,6 +20,10 @@ def get_diffs(adapters: List[int]) -> List[int]:
     return diffs
 
 
+def nCr(n,r):
+    f = math.factorial
+    return f(n) / (f(r)*f(n-r))
+
 if __name__ == "__main__":
     with open("input.txt") as flines:
         adapters = [int(line.strip()) for line in flines]
@@ -25,4 +34,11 @@ if __name__ == "__main__":
     # sort and get the diffs
     diffs = get_diffs(adapters)
     counter = Counter(diffs)
-    print(counter[1]*counter[3])
+    
+    # Try to be clever with int.
+    adapters = sorted(adapters[:-2] + [max(adapters)+3])
+
+    ways = {0 : 1}
+    for level in adapters:
+        ways[level] = ways.get(level - 1, 0) + ways.get(level - 2, 0) + ways.get(level - 3, 0)
+    print(f'Answer: {ways[adapters[-2]]}')
