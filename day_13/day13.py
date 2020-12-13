@@ -20,6 +20,7 @@ def parse_input(input_data: str) -> Tuple[int, List[int]]:
     buses = [int(x) for x in buses.split(",") if x != "x"]
     return timestamp, buses
 
+
 def get_wait_time(departure_time, bus):
     bus_arrival_time = bus * (departure_time // bus + 1)
     wait_time = bus_arrival_time - departure_time
@@ -47,3 +48,18 @@ if __name__ == "__main__":
     departure_time, buses = parse_input(data)
 
     print(get_quickest_bus(departure_time, buses))
+
+    # part two
+    input_data = data.split("\n")[1]
+
+    timestamp = 0
+    period = 1
+    for bus in input_data.split(","):
+        if bus != "x":
+            bus = int(bus)
+            while timestamp % bus != 0:
+                timestamp += period
+            period *= bus
+        timestamp += 1
+
+    print(timestamp - len(input_data.split(",")))
